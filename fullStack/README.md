@@ -1,0 +1,3 @@
+# fullstack 토이프로젝트
+
+react vite react-query ...
