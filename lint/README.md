@@ -1,34 +1,32 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## 린트 셋팅하기 위해서 만들어 놓은 기본 셋팅
 
-## Getting Started
+1.prettier - eslint 연동 (충돌하는 옵션 있을 경우 프리티어 것이 적용됨)
+2.husky 설정으로 lint 만족시켜야 커밋 가능 단, 스테이지에 올라온 (작업분량)파일 내에서만 린트 검사를 하기 때문에 처음부터 초기 셋팅시에 린트돌려서 클린한 상태로 시작하는 것을 권장함
 
-First, run the development server:
+- npm run lint 시에 전체 린트 돌려볼 수 있음.
+- husky 설정은 4버젼대가 package.json에서 간편하게 설정할 수 있어서 다운그레이드 해놓음.
+  - 이 조치사항은 해당 설정을 스터디하기에 우선순위가 밀려서임.
+  - 따라서 추후 최신 버젼 도입 공부 후 적용이 필요할 수 있음.
+- 지금 현재로써는 이정도 설정이면 쓸만하겠다. 기본은 되겠다. 정도를 생각하고 있으나 추후 보완이 필요할 수 있음.
 
-```bash
-npm run dev
-# or
-yarn dev
+vscode editor setting.json
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+{
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "git.autofetch": true,
+  "window.zoomLevel": 2,
+  "files.exclude": {
+    "**/.git": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "eslint.enable": true
+}
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```
