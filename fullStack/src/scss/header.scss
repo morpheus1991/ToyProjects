@@ -1,0 +1,14 @@
+header {
+  width: 100%;
+  display: flex;
+}
+
+.GlobalNavigationBar {
+  padding: 0 20px;
+  &__list {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    gap: 10px;
+  }
+}
