@@ -23,11 +23,18 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^4.3.8",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
     "typescript": "4.8.3"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "echo \"이것은 커밋전에 출력됨\""
+      "pre-commit": "npm run lint"
     }
+  },
+  "lint-staged": {
+    "*.tsx": "npm run lint",
+    "*.js": "npm run lint",
+    "*.ts": "npm run lint"
   }
 }
