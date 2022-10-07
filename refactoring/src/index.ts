@@ -4,13 +4,13 @@ import playsData from "./jsonData/plays.json";
 console.log("hello");
 type PlayIds = "hamlet" | "asLike" | "othello";
 
-type Performances = {
+type Performance = {
   playID: PlayIds;
   audience: number;
 };
 type Invoice = {
   customer: string;
-  performances: Performances[];
+  performances: Performance[];
 };
 
 type PlaysObj = {
@@ -18,6 +18,36 @@ type PlaysObj = {
     name: "Hamlet" | "As You Like It" | "Othello";
     type: "comedy" | "tragedy";
   };
+};
+
+const amountFor = (
+  pref: Performance,
+  play: {
+    name: "Hamlet" | "As You Like It" | "Othello";
+    type: "comedy" | "tragedy";
+  }
+) => {
+  let result = 0;
+  switch (play.type) {
+    case "tragedy": //비극
+      result = 40000;
+      if (pref.audience > 30) {
+        result += 1000 * (pref.audience - 30);
+      }
+      break;
+
+    case "comedy": //희극
+      result = 30000;
+      if (pref.audience > 20) {
+        result += 10000 + 500 * (pref.audience - 20);
+      }
+      result += 300 * pref.audience;
+      break;
+
+    default:
+      throw new Error(`알 수 없는 장르: ${play.type}`);
+  }
+  return result;
 };
 
 function statement(invoice: Invoice, plays: PlaysObj) {
@@ -33,28 +63,9 @@ function statement(invoice: Invoice, plays: PlaysObj) {
   for (let pref of invoice.performances) {
     if (typeof pref.playID === "string") {
       const play = plays[pref.playID];
-      let thisAmount = 0;
+      let thisAmount = amountFor(pref, play);
 
-      switch (play.type) {
-        case "tragedy": //비극
-          thisAmount = 40000;
-          if (pref.audience > 30) {
-            thisAmount += 1000 * (pref.audience - 30);
-          }
-          break;
-
-        case "comedy": //희극
-          thisAmount = 30000;
-          if (pref.audience > 20) {
-            thisAmount += 10000 + 500 * (pref.audience - 20);
-          }
-          thisAmount += 300 * pref.audience;
-          break;
-
-        default:
-          throw new Error(`알 수 없는 장르: ${play.type}`);
-      }
-
+      console.log(play.name, "===");
       // 포인트를 적립한다.
       volumeCredits += Math.max(pref.audience - 30, 0);
       if ("comedy" === play.type)
@@ -69,6 +80,8 @@ function statement(invoice: Invoice, plays: PlaysObj) {
     }
   }
 }
+
+console.log(playsData, "----");
 
 console.log(
   statement(
