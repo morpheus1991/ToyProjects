@@ -21,7 +21,7 @@ type PlaysObj = {
 };
 
 const amountFor = (
-  pref: Performance,
+  aPerformance: Performance,
   play: {
     name: "Hamlet" | "As You Like It" | "Othello";
     type: "comedy" | "tragedy";
@@ -31,17 +31,17 @@ const amountFor = (
   switch (play.type) {
     case "tragedy": //비극
       result = 40000;
-      if (pref.audience > 30) {
-        result += 1000 * (pref.audience - 30);
+      if (aPerformance.audience > 30) {
+        result += 1000 * (aPerformance.audience - 30);
       }
       break;
 
     case "comedy": //희극
       result = 30000;
-      if (pref.audience > 20) {
-        result += 10000 + 500 * (pref.audience - 20);
+      if (aPerformance.audience > 20) {
+        result += 10000 + 500 * (aPerformance.audience - 20);
       }
-      result += 300 * pref.audience;
+      result += 300 * aPerformance.audience;
       break;
 
     default:
