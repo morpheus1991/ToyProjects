@@ -2,7 +2,7 @@ import invoiceData from "./jsonData/invoices.json";
 import playsData from "./jsonData/plays.json";
 
 console.log("hello");
-type PlayIds = "hamlet" | "asLike" | "othello";
+type PlayIds = "hamlet" | "as-like" | "othello";
 
 type Performance = {
   playID: PlayIds;
@@ -20,72 +20,67 @@ type PlaysObj = {
   };
 };
 
-const amountFor = (
-  aPerformance: Performance,
-  play: {
-    name: "Hamlet" | "As You Like It" | "Othello";
-    type: "comedy" | "tragedy";
-  }
-) => {
-  let result = 0;
-  switch (play.type) {
+const volumeCreditsFor = (pref: Performance) => {
+  let volumeCredits = 0;
+  volumeCredits += Math.max(pref.audience - 30, 0);
+  if ("comedy" === playFor(pref).type)
+    volumeCredits += Math.floor(pref.audience / 5);
+  return volumeCredits;
+};
+
+const playFor = (pref: Performance) => {
+  return (playsData as unknown as PlaysObj)[pref.playID];
+};
+
+const amountFor = (aPeformance: Performance) => {
+  let thisAmount = 0;
+  switch (playFor(aPeformance).type) {
     case "tragedy": //비극
-      result = 40000;
-      if (aPerformance.audience > 30) {
-        result += 1000 * (aPerformance.audience - 30);
+      thisAmount = 40000;
+      if (aPeformance.audience > 30) {
+        thisAmount += 1000 * (aPeformance.audience - 30);
       }
       break;
 
     case "comedy": //희극
-      result = 30000;
-      if (aPerformance.audience > 20) {
-        result += 10000 + 500 * (aPerformance.audience - 20);
+      thisAmount = 30000;
+      if (aPeformance.audience > 20) {
+        thisAmount += 10000 + 500 * (aPeformance.audience - 20);
       }
-      result += 300 * aPerformance.audience;
+      thisAmount += 300 * aPeformance.audience;
       break;
 
     default:
-      throw new Error(`알 수 없는 장르: ${play.type}`);
+      throw new Error(`알 수 없는 장르: ${playFor(aPeformance).type}`);
   }
-  return result;
+  return thisAmount;
 };
 
-function statement(invoice: Invoice, plays: PlaysObj) {
-  let totalAmount = 0;
-  let volumeCredits = 0;
-  let result = `청구 내역 (고객명 : ${invoice.customer})\n`;
-  const format = new Intl.NumberFormat("en-US", {
+const usd = (aNumber: number) => {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 2,
-  }).format;
+  }).format(aNumber / 100);
+};
+
+function statement(invoice: Invoice) {
+  let totalAmount = 0;
+  let result = `청구 내역 (고객명 : ${invoice.customer})\n`;
 
   for (let pref of invoice.performances) {
-    if (typeof pref.playID === "string") {
-      const play = plays[pref.playID];
-      let thisAmount = amountFor(pref, play);
-
-      console.log(play.name, "===");
-      // 포인트를 적립한다.
-      volumeCredits += Math.max(pref.audience - 30, 0);
-      if ("comedy" === play.type)
-        volumeCredits += Math.floor(pref.audience / 5);
-      result += `${play.name}: ${format(thisAmount / 100)} (${
-        pref.audience
-      }석)`;
-      totalAmount += thisAmount;
-      result += `총액: ${format(totalAmount / 100)}\n`;
-      result += `적립 포인트: ${volumeCredits}점\n`;
-      return result;
-    }
+    //청구 내역을 출력한다.
+    result += `${playFor(pref).name}: ${usd(amountFor(pref) / 100)} (${
+      pref.audience
+    }석)`;
   }
+  let volumeCredits = 0;
+  for (let pref of invoice.performances) {
+    volumeCredits += volumeCreditsFor(pref);
+  }
+  result += `총액: ${usd(totalAmount / 100)}\n`;
+  result += `적립 포인트: ${volumeCredits}점\n`;
+  return result;
 }
 
-console.log(playsData, "----");
-
-console.log(
-  statement(
-    invoiceData[0] as unknown as Invoice,
-    playsData as unknown as PlaysObj
-  )
-);
+console.log(statement(invoiceData[0] as unknown as Invoice));
