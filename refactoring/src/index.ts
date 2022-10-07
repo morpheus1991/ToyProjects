@@ -74,10 +74,15 @@ function statement(invoice: Invoice) {
       pref.audience
     }석)`;
   }
-  let volumeCredits = 0;
-  for (let pref of invoice.performances) {
-    volumeCredits += volumeCreditsFor(pref);
-  }
+  const totalVolumeCredits = () => {
+    let volumeCredits = 0;
+    for (let pref of invoice.performances) {
+      volumeCredits += volumeCreditsFor(pref);
+    }
+    return volumeCredits;
+  };
+  let volumeCredits = totalVolumeCredits();
+
   result += `총액: ${usd(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
