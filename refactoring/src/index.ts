@@ -21,16 +21,55 @@ type PlaysObj = {
 };
 
 function statement(invoice: Invoice, plays: PlaysObj) {
-  const statementData: Invoice = { customer: "", performances: [] };
+  const statementData: Invoice & {
+    performances: {
+      play: {
+        name: "Hamlet" | "As You Like It" | "Othello";
+        type: "comedy" | "tragedy";
+      } | null;
+      playID: PlayIds;
+      audience: number;
+    }[];
+  } = { customer: "", performances: [] };
   statementData.customer = invoice.customer;
-  statementData.performances = invoice.performances;
+  statementData.performances = invoice.performances.map(enrichPerformance);
   return renderPlainText(statementData, plays);
+
+  function enrichPerformance(aPeformance: Performance) {
+    // 책에서는 이렇게 함 const result = Object.assign({}, aPeformance);
+    const result: {
+      play: {
+        name: "Hamlet" | "As You Like It" | "Othello";
+        type: "comedy" | "tragedy";
+      } | null;
+      playID: PlayIds;
+      audience: number;
+    } = { ...aPeformance, play: null };
+    result.play = playFor(result);
+    return result;
+  }
+  function playFor(pref: Performance) {
+    return (plays as unknown as PlaysObj)[pref.playID];
+  }
 }
-function renderPlainText(data: Invoice, plays: PlaysObj) {
+function renderPlainText(
+  data: Invoice & {
+    performances: {
+      play: {
+        name: "Hamlet" | "As You Like It" | "Othello";
+        type: "comedy" | "tragedy";
+      } | null;
+      playID: PlayIds;
+      audience: number;
+    }[];
+  },
+  plays: PlaysObj
+) {
   let result = `청구 내역 (고객명 : ${data.customer})\n`;
 
   for (let pref of data.performances) {
-    result += `${playFor(pref).name}: ${usd(amountFor(pref) / 100)} (${
+    if (!pref.play) throw Error("check performances play");
+    result += `${pref.play.name}: ${usd(amountFor(pref) / 100)} (${
       pref.audience
     }석)`;
   }
@@ -62,21 +101,32 @@ function renderPlainText(data: Invoice, plays: PlaysObj) {
     }).format(aNumber / 100);
   }
 
-  function volumeCreditsFor(pref: Performance) {
+  function volumeCreditsFor(aPeformance: {
+    play: {
+      name: "Hamlet" | "As You Like It" | "Othello";
+      type: "comedy" | "tragedy";
+    } | null;
+    playID: PlayIds;
+    audience: number;
+  }) {
     let result = 0;
-    result += Math.max(pref.audience - 30, 0);
-    if ("comedy" === playFor(pref).type)
-      result += Math.floor(pref.audience / 5);
+    result += Math.max(aPeformance.audience - 30, 0);
+    if ("comedy" === aPeformance.play?.type)
+      result += Math.floor(aPeformance.audience / 5);
     return result;
   }
 
-  function playFor(pref: Performance) {
-    return (plays as unknown as PlaysObj)[pref.playID];
-  }
-
-  function amountFor(aPeformance: Performance) {
+  function amountFor(aPeformance: {
+    play: {
+      name: "Hamlet" | "As You Like It" | "Othello";
+      type: "comedy" | "tragedy";
+    } | null;
+    playID: PlayIds;
+    audience: number;
+  }) {
     let thisAmount = 0;
-    switch (playFor(aPeformance).type) {
+    if (!aPeformance.play) throw Error("check performances play");
+    switch (aPeformance.play.type) {
       case "tragedy": //비극
         thisAmount = 40000;
         if (aPeformance.audience > 30) {
@@ -93,7 +143,7 @@ function renderPlainText(data: Invoice, plays: PlaysObj) {
         break;
 
       default:
-        throw new Error(`알 수 없는 장르: ${playFor(aPeformance).type}`);
+        throw new Error(`알 수 없는 장르: ${aPeformance.play.type}`);
     }
     return thisAmount;
   }
