@@ -20,10 +20,16 @@ type PlaysObj = {
   };
 };
 
-function renderPlainText(invoice: Invoice, plays: PlaysObj) {
-  let result = `청구 내역 (고객명 : ${invoice.customer})\n`;
+function statement(invoice: Invoice, plays: PlaysObj) {
+  const statementData: any = {};
+  statementData.customer = invoice.customer;
+  statementData.performances = invoice.performances;
+  return renderPlainText(statementData, plays);
+}
+function renderPlainText(data: any, plays: PlaysObj) {
+  let result = `청구 내역 (고객명 : ${data.customer})\n`;
 
-  for (let pref of invoice.performances) {
+  for (let pref of data.performances) {
     result += `${playFor(pref).name}: ${usd(amountFor(pref) / 100)} (${
       pref.audience
     }석)`;
@@ -34,7 +40,7 @@ function renderPlainText(invoice: Invoice, plays: PlaysObj) {
 
   function totalAmount() {
     let result = 0;
-    for (let pref of invoice.performances) {
+    for (let pref of data.performances) {
       result += amountFor(pref);
     }
     return result;
@@ -42,7 +48,7 @@ function renderPlainText(invoice: Invoice, plays: PlaysObj) {
 
   function totalVolumeCredits() {
     let result = 0;
-    for (let pref of invoice.performances) {
+    for (let pref of data.performances) {
       result += volumeCreditsFor(pref);
     }
     return result;
@@ -91,9 +97,6 @@ function renderPlainText(invoice: Invoice, plays: PlaysObj) {
     }
     return thisAmount;
   }
-}
-function statement(invoice: Invoice, plays: PlaysObj) {
-  return renderPlainText(invoice, plays);
 }
 
 console.log(
