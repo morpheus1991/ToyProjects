@@ -21,12 +21,12 @@ type PlaysObj = {
 };
 
 function statement(invoice: Invoice, plays: PlaysObj) {
-  const statementData: any = {};
+  const statementData: Invoice = { customer: "", performances: [] };
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances;
   return renderPlainText(statementData, plays);
 }
-function renderPlainText(data: any, plays: PlaysObj) {
+function renderPlainText(data: Invoice, plays: PlaysObj) {
   let result = `청구 내역 (고객명 : ${data.customer})\n`;
 
   for (let pref of data.performances) {
