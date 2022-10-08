@@ -20,18 +20,16 @@ type PlaysObj = {
   };
 };
 
-function statement(invoice: Invoice) {
+function renderPlainText(invoice: Invoice, plays: PlaysObj) {
   let result = `청구 내역 (고객명 : ${invoice.customer})\n`;
 
   for (let pref of invoice.performances) {
-    //청구 내역을 출력한다.
     result += `${playFor(pref).name}: ${usd(amountFor(pref) / 100)} (${
       pref.audience
     }석)`;
   }
   result += `총액: ${usd(totalAmount() / 100)}\n`;
   result += `적립 포인트: ${totalVolumeCredits()}점\n`;
-
   return result;
 
   function totalAmount() {
@@ -67,7 +65,7 @@ function statement(invoice: Invoice) {
   }
 
   function playFor(pref: Performance) {
-    return (playsData as unknown as PlaysObj)[pref.playID];
+    return (plays as unknown as PlaysObj)[pref.playID];
   }
 
   function amountFor(aPeformance: Performance) {
@@ -94,5 +92,13 @@ function statement(invoice: Invoice) {
     return thisAmount;
   }
 }
+function statement(invoice: Invoice, plays: PlaysObj) {
+  return renderPlainText(invoice, plays);
+}
 
-console.log(statement(invoiceData[0] as unknown as Invoice));
+console.log(
+  statement(
+    invoiceData[0] as unknown as Invoice,
+    playsData as unknown as PlaysObj
+  )
+);
