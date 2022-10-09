@@ -1,9 +1,9 @@
 import invoiceData from "./jsonData/invoices.json";
 import playsData from "./jsonData/plays.json";
 
-function statement(invoice, plays) {
-  let result = `청구 내역 (고객명 : ${invoice.customer})\n`;
-  for (const pref of invoice.performances) {
+function renderPlainText(data, plays) {
+  let result = `청구 내역 (고객명 : ${data.customer})\n`;
+  for (const pref of data.performances) {
     result += ` ${playFor(pref).name}: ${usd(amountFor(pref))} (${
       pref.audience
     }석)\n `;
@@ -14,7 +14,7 @@ function statement(invoice, plays) {
 
   function totalAmount() {
     let result = 0;
-    for (let pref of invoice.performances) {
+    for (let pref of data.performances) {
       result += amountFor(pref);
     }
     return result;
@@ -22,17 +22,9 @@ function statement(invoice, plays) {
 
   function totalVolumeCredits() {
     let result = 0;
-    for (const pref of invoice.performances) {
-      console.log(
-        "result:",
-        result,
-        "volumeCreditsForresult:",
-        volumeCreditsFor(pref)
-      );
+    for (const pref of data.performances) {
       result += volumeCreditsFor(pref);
-      console.log("totalVolumeCredits", result);
     }
-    console.log("totalVolumeCredits", result);
     return result;
   }
 
@@ -80,6 +72,13 @@ function statement(invoice, plays) {
     }
     return result;
   }
+}
+function statement(invoice, plays) {
+  const statementData: { customer?: any; performances?: any } = {};
+  statementData.customer = invoice.customer;
+  statementData.performances = invoice.performances;
+
+  return renderPlainText(statementData, plays);
 }
 
 console.log(statement(invoiceData[0], playsData));
