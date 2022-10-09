@@ -30,6 +30,7 @@ function statement(invoice: Invoice, plays: PlaysObj) {
       playID: PlayIds;
       audience: number;
       amount: number | null;
+      volumeCredits: number | null;
     }[];
   } = { customer: "", performances: [] };
   statementData.customer = invoice.customer;
@@ -46,9 +47,11 @@ function statement(invoice: Invoice, plays: PlaysObj) {
       playID: PlayIds;
       audience: number;
       amount: number | null;
-    } = { ...aPeformance, play: null, amount: null };
+      volumeCredits: number | null;
+    } = { ...aPeformance, play: null, amount: null, volumeCredits: null };
     result.play = playFor(result);
     result.amount = amountFor(result);
+    result.volumeCredits = volumeCreditsFor(result);
     return result;
   }
   function playFor(pref: Performance) {
@@ -62,6 +65,7 @@ function statement(invoice: Invoice, plays: PlaysObj) {
     playID: PlayIds;
     audience: number;
     amount: number | null;
+    volumeCredits: number | null;
   }) {
     let thisAmount = 0;
     if (!aPeformance.play) throw Error("check performances play");
@@ -86,6 +90,22 @@ function statement(invoice: Invoice, plays: PlaysObj) {
     }
     return thisAmount;
   }
+  function volumeCreditsFor(aPeformance: {
+    play: {
+      name: "Hamlet" | "As You Like It" | "Othello";
+      type: "comedy" | "tragedy";
+    } | null;
+    playID: PlayIds;
+    audience: number;
+    amount: number | null;
+    volumeCredits: number | null;
+  }) {
+    let result = 0;
+    result += Math.max(aPeformance.audience - 30, 0);
+    if ("comedy" === aPeformance.play?.type)
+      result += Math.floor(aPeformance.audience / 5);
+    return result;
+  }
 }
 function renderPlainText(
   data: Invoice & {
@@ -97,6 +117,7 @@ function renderPlainText(
       playID: PlayIds;
       audience: number;
       amount: number | null;
+      volumeCredits: number | null;
     }[];
   },
   plays: PlaysObj
@@ -125,7 +146,8 @@ function renderPlainText(
   function totalVolumeCredits() {
     let result = 0;
     for (let pref of data.performances) {
-      result += volumeCreditsFor(pref);
+      if (!pref.volumeCredits) throw Error("check performances volumeCredits");
+      result += pref.volumeCredits;
     }
     return result;
   }
@@ -136,22 +158,6 @@ function renderPlainText(
       currency: "USD",
       minimumFractionDigits: 2,
     }).format(aNumber / 100);
-  }
-
-  function volumeCreditsFor(aPeformance: {
-    play: {
-      name: "Hamlet" | "As You Like It" | "Othello";
-      type: "comedy" | "tragedy";
-    } | null;
-    playID: PlayIds;
-    audience: number;
-    amount: number | null;
-  }) {
-    let result = 0;
-    result += Math.max(aPeformance.audience - 30, 0);
-    if ("comedy" === aPeformance.play?.type)
-      result += Math.floor(aPeformance.audience / 5);
-    return result;
   }
 }
 
