@@ -21,21 +21,34 @@ type PlaysObj = {
 };
 
 function statement(invoice: Invoice, plays: PlaysObj) {
-  const statementData: Invoice & {
-    performances: {
-      play: {
-        name: "Hamlet" | "As You Like It" | "Othello";
-        type: "comedy" | "tragedy";
-      } | null;
-      playID: PlayIds;
-      audience: number;
-      amount: number | null;
-      volumeCredits: number | null;
-    }[];
-  } = { customer: "", performances: [] };
-  statementData.customer = invoice.customer;
-  statementData.performances = invoice.performances.map(enrichPerformance);
-  return renderPlainText(statementData, plays);
+  return renderPlainText(createStatementData(invoice, plays));
+
+  function createStatementData(invoice: Invoice, plays: PlaysObj) {
+    const statementData: Invoice & {
+      performances: {
+        play: {
+          name: "Hamlet" | "As You Like It" | "Othello";
+          type: "comedy" | "tragedy";
+        } | null;
+        playID: PlayIds;
+        audience: number;
+        amount: number | null;
+        volumeCredits: number | null;
+      }[];
+      totalAmount: number | null;
+      totalVolumeCredits: number | null;
+    } = {
+      customer: "",
+      performances: [],
+      totalAmount: 0,
+      totalVolumeCredits: 0,
+    };
+    statementData.customer = invoice.customer;
+    statementData.performances = invoice.performances.map(enrichPerformance);
+    statementData.totalAmount = totalAmount(statementData);
+    statementData.totalVolumeCredits = totalVolumeCredits(statementData);
+    return statementData;
+  }
 
   function enrichPerformance(aPeformance: Performance) {
     // 책에서는 이렇게 함 const result = Object.assign({}, aPeformance);
@@ -106,6 +119,46 @@ function statement(invoice: Invoice, plays: PlaysObj) {
       result += Math.floor(aPeformance.audience / 5);
     return result;
   }
+  function totalAmount(data: {
+    customer: string;
+    performances: {
+      play: {
+        name: "Hamlet" | "As You Like It" | "Othello";
+        type: "comedy" | "tragedy";
+      } | null;
+      playID: PlayIds;
+      audience: number;
+      amount: number | null;
+      volumeCredits: number | null;
+    }[];
+    totalAmount: number | null;
+  }) {
+    return data.performances.reduce((total, c) => {
+      if (c.amount) {
+        return total + c.amount;
+      }
+      throw Error("performances amount is null");
+    }, 0);
+  }
+  function totalVolumeCredits(data: {
+    customer: string;
+    performances: {
+      play: {
+        name: "Hamlet" | "As You Like It" | "Othello";
+        type: "comedy" | "tragedy";
+      } | null;
+      playID: PlayIds;
+      audience: number;
+      amount: number | null;
+      volumeCredits: number | null;
+    }[];
+    totalAmount: number | null;
+  }) {
+    return data.performances.reduce((total, c) => {
+      if (!c.volumeCredits) throw Error("performances volumeCredits is null");
+      return total + c.volumeCredits;
+    }, 0);
+  }
 }
 function renderPlainText(
   data: Invoice & {
@@ -119,8 +172,9 @@ function renderPlainText(
       amount: number | null;
       volumeCredits: number | null;
     }[];
-  },
-  plays: PlaysObj
+    totalAmount: number | null;
+    totalVolumeCredits: number | null;
+  }
 ) {
   let result = `청구 내역 (고객명 : ${data.customer})\n`;
 
@@ -130,27 +184,12 @@ function renderPlainText(
 
     result += `${pref.play.name}: ${usd(pref.amount)} (${pref.audience}석)`;
   }
-  result += `총액: ${usd(totalAmount() / 100)}\n`;
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`;
+  if (!data.totalAmount) throw Error("check totalAmount");
+  if (!data.totalVolumeCredits) throw Error("check totalVolumeCredits");
+
+  result += `총액: ${usd(data.totalAmount)}\n`;
+  result += `적립 포인트: ${data.totalVolumeCredits}점\n`;
   return result;
-
-  function totalAmount() {
-    let result = 0;
-    for (let pref of data.performances) {
-      if (!pref.amount) throw Error("check performances amount");
-      result += pref.amount;
-    }
-    return result;
-  }
-
-  function totalVolumeCredits() {
-    let result = 0;
-    for (let pref of data.performances) {
-      if (!pref.volumeCredits) throw Error("check performances volumeCredits");
-      result += pref.volumeCredits;
-    }
-    return result;
-  }
 
   function usd(aNumber: number) {
     return new Intl.NumberFormat("en-US", {
