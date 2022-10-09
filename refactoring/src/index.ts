@@ -48,80 +48,27 @@ function statement(invoice: Invoice, plays: PlaysObj) {
     statementData.totalAmount = totalAmount(statementData);
     statementData.totalVolumeCredits = totalVolumeCredits(statementData);
     return statementData;
-  }
-
-  function enrichPerformance(aPeformance: Performance) {
-    // 책에서는 이렇게 함 const result = Object.assign({}, aPeformance);
-    const result: {
-      play: {
-        name: "Hamlet" | "As You Like It" | "Othello";
-        type: "comedy" | "tragedy";
-      } | null;
-      playID: PlayIds;
-      audience: number;
-      amount: number | null;
-      volumeCredits: number | null;
-    } = { ...aPeformance, play: null, amount: null, volumeCredits: null };
-    result.play = playFor(result);
-    result.amount = amountFor(result);
-    result.volumeCredits = volumeCreditsFor(result);
-    return result;
-  }
-  function playFor(pref: Performance) {
-    return (plays as unknown as PlaysObj)[pref.playID];
-  }
-  function amountFor(aPeformance: {
-    play: {
-      name: "Hamlet" | "As You Like It" | "Othello";
-      type: "comedy" | "tragedy";
-    } | null;
-    playID: PlayIds;
-    audience: number;
-    amount: number | null;
-    volumeCredits: number | null;
-  }) {
-    let thisAmount = 0;
-    if (!aPeformance.play) throw Error("check performances play");
-    switch (aPeformance.play.type) {
-      case "tragedy": //비극
-        thisAmount = 40000;
-        if (aPeformance.audience > 30) {
-          thisAmount += 1000 * (aPeformance.audience - 30);
-        }
-        break;
-
-      case "comedy": //희극
-        thisAmount = 30000;
-        if (aPeformance.audience > 20) {
-          thisAmount += 10000 + 500 * (aPeformance.audience - 20);
-        }
-        thisAmount += 300 * aPeformance.audience;
-        break;
-
-      default:
-        throw new Error(`알 수 없는 장르: ${aPeformance.play.type}`);
+    function enrichPerformance(aPeformance: Performance) {
+      // 책에서는 이렇게 함 const result = Object.assign({}, aPeformance);
+      const result: {
+        play: {
+          name: "Hamlet" | "As You Like It" | "Othello";
+          type: "comedy" | "tragedy";
+        } | null;
+        playID: PlayIds;
+        audience: number;
+        amount: number | null;
+        volumeCredits: number | null;
+      } = { ...aPeformance, play: null, amount: null, volumeCredits: null };
+      result.play = playFor(result);
+      result.amount = amountFor(result);
+      result.volumeCredits = volumeCreditsFor(result);
+      return result;
     }
-    return thisAmount;
-  }
-  function volumeCreditsFor(aPeformance: {
-    play: {
-      name: "Hamlet" | "As You Like It" | "Othello";
-      type: "comedy" | "tragedy";
-    } | null;
-    playID: PlayIds;
-    audience: number;
-    amount: number | null;
-    volumeCredits: number | null;
-  }) {
-    let result = 0;
-    result += Math.max(aPeformance.audience - 30, 0);
-    if ("comedy" === aPeformance.play?.type)
-      result += Math.floor(aPeformance.audience / 5);
-    return result;
-  }
-  function totalAmount(data: {
-    customer: string;
-    performances: {
+    function playFor(pref: Performance) {
+      return (plays as unknown as PlaysObj)[pref.playID];
+    }
+    function amountFor(aPeformance: {
       play: {
         name: "Hamlet" | "As You Like It" | "Othello";
         type: "comedy" | "tragedy";
@@ -130,19 +77,31 @@ function statement(invoice: Invoice, plays: PlaysObj) {
       audience: number;
       amount: number | null;
       volumeCredits: number | null;
-    }[];
-    totalAmount: number | null;
-  }) {
-    return data.performances.reduce((total, c) => {
-      if (c.amount) {
-        return total + c.amount;
+    }) {
+      let thisAmount = 0;
+      if (!aPeformance.play) throw Error("check performances play");
+      switch (aPeformance.play.type) {
+        case "tragedy": //비극
+          thisAmount = 40000;
+          if (aPeformance.audience > 30) {
+            thisAmount += 1000 * (aPeformance.audience - 30);
+          }
+          break;
+
+        case "comedy": //희극
+          thisAmount = 30000;
+          if (aPeformance.audience > 20) {
+            thisAmount += 10000 + 500 * (aPeformance.audience - 20);
+          }
+          thisAmount += 300 * aPeformance.audience;
+          break;
+
+        default:
+          throw new Error(`알 수 없는 장르: ${aPeformance.play.type}`);
       }
-      throw Error("performances amount is null");
-    }, 0);
-  }
-  function totalVolumeCredits(data: {
-    customer: string;
-    performances: {
+      return thisAmount;
+    }
+    function volumeCreditsFor(aPeformance: {
       play: {
         name: "Hamlet" | "As You Like It" | "Othello";
         type: "comedy" | "tragedy";
@@ -151,13 +110,53 @@ function statement(invoice: Invoice, plays: PlaysObj) {
       audience: number;
       amount: number | null;
       volumeCredits: number | null;
-    }[];
-    totalAmount: number | null;
-  }) {
-    return data.performances.reduce((total, c) => {
-      if (!c.volumeCredits) throw Error("performances volumeCredits is null");
-      return total + c.volumeCredits;
-    }, 0);
+    }) {
+      let result = 0;
+      result += Math.max(aPeformance.audience - 30, 0);
+      if ("comedy" === aPeformance.play?.type)
+        result += Math.floor(aPeformance.audience / 5);
+      return result;
+    }
+    function totalAmount(data: {
+      customer: string;
+      performances: {
+        play: {
+          name: "Hamlet" | "As You Like It" | "Othello";
+          type: "comedy" | "tragedy";
+        } | null;
+        playID: PlayIds;
+        audience: number;
+        amount: number | null;
+        volumeCredits: number | null;
+      }[];
+      totalAmount: number | null;
+    }) {
+      return data.performances.reduce((total, c) => {
+        if (c.amount) {
+          return total + c.amount;
+        }
+        throw Error("performances amount is null");
+      }, 0);
+    }
+    function totalVolumeCredits(data: {
+      customer: string;
+      performances: {
+        play: {
+          name: "Hamlet" | "As You Like It" | "Othello";
+          type: "comedy" | "tragedy";
+        } | null;
+        playID: PlayIds;
+        audience: number;
+        amount: number | null;
+        volumeCredits: number | null;
+      }[];
+      totalAmount: number | null;
+    }) {
+      return data.performances.reduce((total, c) => {
+        if (!c.volumeCredits) throw Error("performances volumeCredits is null");
+        return total + c.volumeCredits;
+      }, 0);
+    }
   }
 }
 function renderPlainText(
