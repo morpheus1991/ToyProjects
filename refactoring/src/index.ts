@@ -1,30 +1,14 @@
 import invoiceData from "./jsonData/invoices.json";
 import playsData from "./jsonData/plays.json";
 
-function renderPlainText(data, plays) {
+function renderPlainText(data) {
   let result = `청구 내역 (고객명 : ${data.customer})\n`;
   for (const pref of data.performances) {
     result += ` ${pref.play.name}: ${usd(pref.amount)} (${pref.audience}석)\n `;
   }
-  result += `총액: ${usd(totalAmount())}\n`;
-  result += `적립 포인트: ${totalVolumeCredits()}점 \n`;
+  result += `총액: ${usd(data.totalAmount)}\n`;
+  result += `적립 포인트: ${data.totalVolumeCredits}점 \n`;
   return result;
-
-  function totalAmount() {
-    let result = 0;
-    for (let pref of data.performances) {
-      result += pref.amount;
-    }
-    return result;
-  }
-
-  function totalVolumeCredits() {
-    let result = 0;
-    for (const pref of data.performances) {
-      result += pref.amount;
-    }
-    return result;
-  }
 
   function usd(aNumber) {
     return new Intl.NumberFormat("un-Us", {
@@ -35,11 +19,22 @@ function renderPlainText(data, plays) {
   }
 }
 function statement(invoice, plays) {
-  const statementData: { customer?: any; performances?: any } = {};
+  return renderPlainText(createStatementData(invoice, plays));
+}
+
+function createStatementData(invoice, plays) {
+  const statementData: {
+    customer?: any;
+    performances?: any;
+    totalAmount?: any;
+    totalVolumeCredits?: any;
+  } = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
+  statementData.totalAmount = totalAmount(statementData);
+  statementData.totalVolumeCredits = totalVolumeCredits(statementData);
 
-  return renderPlainText(statementData, plays);
+  return statementData;
 
   function enrichPerformance(aPerformance) {
     const result = { ...aPerformance };
@@ -84,6 +79,12 @@ function statement(invoice, plays) {
     }
     return result;
   }
-}
+  function totalAmount(data) {
+    return data.performances.reduce((total, p) => total + p.amount, 0);
+  }
 
+  function totalVolumeCredits(data) {
+    return data.performances.reduce((total, p) => total + p.volumeCredits, 0);
+  }
+}
 console.log(statement(invoiceData[0], playsData));
