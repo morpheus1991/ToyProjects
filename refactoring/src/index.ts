@@ -39,10 +39,3 @@ function usd(aNumber) {
   }).format(aNumber / 100);
 }
 console.log(statement(invoiceData[0], playsData));
-
-class performanceCalculator {
-  performance;
-  constructor(aPerformance) {
-    this.performance = aPerformance;
-  }
-}

@@ -13,6 +13,10 @@ function createStatementData(invoice, plays) {
   return statementData;
 
   function enrichPerformance(aPerformance) {
+    const calculator = new performanceCalculator(
+      aPerformance,
+      playFor(aPerformance)
+    );
     const result = { ...aPerformance };
     result.play = playFor(result);
     result.amount = amountFor(result);
@@ -64,3 +68,12 @@ function createStatementData(invoice, plays) {
   }
 }
 export default createStatementData;
+
+class performanceCalculator {
+  performance;
+  play;
+  constructor(aPerformance, aPlay) {
+    this.performance = aPerformance;
+    this.play = aPlay;
+  }
+}
