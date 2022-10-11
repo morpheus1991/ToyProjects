@@ -5,10 +5,12 @@ abstract class FlyBehavior {
 abstract class QuackBehavior {
   quack() {}
 }
-class Duck {
-  private flyBehavior;
-  private quackBehavior;
-  constructor(flyBehavior: FlyBehavior, quackBehavior: QuackBehavior) {
+
+abstract class Duck {
+  constructor(
+    protected flyBehavior: FlyBehavior,
+    protected quackBehavior: QuackBehavior
+  ) {
     this.flyBehavior = flyBehavior;
     this.quackBehavior = quackBehavior;
   }
@@ -51,6 +53,17 @@ class MuteQuack implements QuackBehavior {
   }
 }
 
-const duck = new Duck(new FlyWithWings(), new MuteQuack());
+class NomalDuck extends Duck {
+  constructor(flyBehavior: FlyBehavior, quackBehavior: QuackBehavior) {
+    super(flyBehavior, quackBehavior);
+  }
+  fly() {
+    this.flyBehavior.fly();
+  }
+  quack() {
+    this.quackBehavior.quack();
+  }
+}
+const duck = new NomalDuck(new FlyWithWings(), new MuteQuack());
 
 duck.fly();
