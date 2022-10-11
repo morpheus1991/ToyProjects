@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+      }
+      .test-wrapper {
+        width: 100%;
+        background: red;
+        display: flex;
+        align-items: center;
+      }
+      ul {
+        width: 100%;
+      }
+      li {
+        height: 400px;
+        background: greenyellow;
+        transition: 1s;
+      }
+      li.on {
+        background: blue;
+      }
+
+      li + li {
+        margin-top: 140px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-wrapper">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+  </body>
+  <script>
+    const io = new IntersectionObserver(
+      (entries) => {
+        console.log("ddd");
+        entries.forEach((entry) => {
+          console.log(entry);
+          if (entry.isIntersecting) {
+            entry.target.classList.add("on");
+          } else {
+            entry.target.classList.remove("on");
+          }
+        });
+      },
+      {
+        threshold: 0.1, // or `threshold: [0.3]`
+      }
+    );
+    const liList = document.querySelectorAll("li");
+
+    liList.forEach((li) => io.observe(li));
+  </script>
+</html>
