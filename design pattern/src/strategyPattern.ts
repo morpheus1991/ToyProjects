@@ -64,6 +64,28 @@ class NomalDuck extends Duck {
     this.quackBehavior.quack();
   }
 }
-const duck = new NomalDuck(new FlyWithWings(), new MuteQuack());
+const nomalduck = new NomalDuck(new FlyNoWay(), new MuteQuack());
+const wingDuck = new NomalDuck(new FlyWithWings(), new Quack());
 
-duck.fly();
+nomalduck.fly();
+nomalduck.quack();
+
+wingDuck.fly();
+wingDuck.quack();
+
+class Duck2 {
+  private flyFunction;
+  private quackFunction;
+  constructor(fly: Function, quack: Function) {
+    this.flyFunction = fly;
+    this.quackFunction = quack;
+  }
+  fly() {
+    this.flyFunction();
+    console.log("fly");
+  }
+  quack() {
+    this.quackFunction();
+    console.log("quack");
+  }
+}

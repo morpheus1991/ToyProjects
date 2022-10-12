@@ -83,4 +83,23 @@
 
     liList.forEach((li) => io.observe(li));
   </script>
+
+  <script>
+    let filters = document.querySelectorAll(".filter_desc");
+    let filterDopdowns = document.querySelectorAll(".filter_item .dropdown");
+
+    filters.forEach((filter) => {
+      filter.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (e.currentTarget.classList.contains("is_active")) {
+          e.currentTarget.classList.remove("is_active");
+        } else {
+          filters.forEach((ActiveRemove) => {
+            ActiveRemove.classList.remove("is_active");
+          });
+          e.currentTarget.classList.add("is_active");
+        }
+      });
+    });
+  </script>
 </html>
