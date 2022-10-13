@@ -2,10 +2,16 @@ abstract class Subject {
   registerObserver(observer: Observer) {}
   removeObserver(observer: Observer) {}
   notifyObservers() {}
+  getHumidity(): number | null {
+    return 0;
+  }
+  getTemperature(): number | null {
+    return 0;
+  }
 }
 
 abstract class Observer {
-  update(temperature: number, humidity: number, pressure: number) {}
+  update() {}
 }
 
 abstract class DisplayElement {
@@ -30,15 +36,16 @@ class WeatherData implements Subject {
     this.observers = [...this.observers, observer];
   }
   public removeObserver(observer: Observer) {
-    this.observers = [...this.observers.filter((observer) => observer)];
-    //
+    this.observers = [
+      ...this.observers.filter((observerItem) => observerItem !== observer),
+    ];
   }
   public notifyObservers() {
     console.log(this.observers.length);
     this.observers.forEach((observer) => {
       const { temperature, humidity, pressure } = this;
       if (!(temperature && humidity && pressure)) throw new Error("dd");
-      observer.update(temperature!, humidity!, pressure!);
+      observer.update();
     });
   }
 
@@ -58,6 +65,12 @@ class WeatherData implements Subject {
     this.pressure = pressure;
     this.measurementsChanged();
   }
+  public getTemperature() {
+    return this.temperature;
+  }
+  public getHumidity() {
+    return this.humidity;
+  }
 }
 class CurrentConditionsDisplay implements ObserverAndDisplayElement {
   private temperature: number | null;
@@ -70,9 +83,9 @@ class CurrentConditionsDisplay implements ObserverAndDisplayElement {
     this.humidity = null;
     this.pressure = null;
   }
-  update(temperature: number, humidity: number, pressure: number): void {
-    this.temperature = temperature;
-    this.humidity = humidity;
+  update(): void {
+    this.temperature = this.weatherData.getTemperature();
+    this.humidity = this.weatherData.getHumidity();
     this.display();
   }
   currentConditionDisplay(weatherData: Subject) {
@@ -98,9 +111,9 @@ class StaticsDisplay implements ObserverAndDisplayElement {
     this.pressure = null;
   }
 
-  update(temperature: number, humidity: number, pressure: number): void {
-    this.temperature = temperature;
-    this.humidity = humidity;
+  update(): void {
+    this.temperature = this.weatherData.getTemperature();
+    this.humidity = this.weatherData.getHumidity();
     this.display();
   }
   currentConditionDisplay(weatherData: Subject) {
@@ -125,9 +138,9 @@ class ForecastDisplay implements ObserverAndDisplayElement {
     this.humidity = null;
     this.pressure = null;
   }
-  update(temperature: number, humidity: number, pressure: number): void {
-    this.temperature = temperature;
-    this.humidity = humidity;
+  update(): void {
+    this.temperature = this.weatherData.getTemperature();
+    this.humidity = this.weatherData.getHumidity();
     this.display();
   }
   currentConditionDisplay(weatherData: Subject) {
@@ -152,9 +165,9 @@ class ThirdPartyDisplay implements ObserverAndDisplayElement {
     this.humidity = null;
     this.pressure = null;
   }
-  update(temperature: number, humidity: number, pressure: number): void {
-    this.temperature = temperature;
-    this.humidity = humidity;
+  update(): void {
+    this.temperature = this.weatherData.getTemperature();
+    this.humidity = this.weatherData.getHumidity();
     this.display();
   }
   currentConditionDisplay(weatherData: Subject) {
