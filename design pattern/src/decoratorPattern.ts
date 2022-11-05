@@ -23,7 +23,11 @@ abstract class CondimentDecorator extends Beberage {
     this.beberage = beberage;
   }
   getDescription(): string {
-    return "";
+    return this.beberage.description;
+  }
+
+  cost() {
+    return this.beberage.cost() + 0;
   }
 }
 
