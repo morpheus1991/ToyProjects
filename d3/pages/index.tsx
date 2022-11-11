@@ -1,4 +1,4 @@
-import { select } from "d3";
+import d3, { select, easeLinear } from "d3";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -6,23 +6,31 @@ import styles from "../styles/Home.module.css";
 
 export default function Home() {
   const [data, setData] = useState([24, 30, 45, 70, 26]);
+  const [data2, setData2] = useState([224, 130, 345, 570, 126]);
+
   const svgRef = useRef(null);
+  // function rectGene = ({width,margin})=>{}
   useEffect(() => {
     const svg = select(svgRef.current); // selection 객체
 
-    svg
-      .selectAll("circle")
-      .data(data)
-      .join(
-        (enter) => enter.append("circle"),
-        (update) => update.attr("class", "updated"),
-        (exit) => exit.remove()
-      )
-      .attr("r", (value) => value)
-      .attr("cx", (value) => value * 2)
-      .attr("cy", (value) => value * 2)
-      .attr("stroke", "red");
-  }, [data]);
+    const topValue = Math.max(...data2);
+    console.log(topValue);
+    data.forEach((data, index) => {
+      svg
+        .append("rect")
+        .attr("height", data)
+        .attr("width", 30)
+        .attr("fill", "gray")
+        .attr("x", 40 * index + 100) //막대 생성좌표
+        .attr("y", 300 - data + 100) //막대 생성
+        .transition()
+        .duration(3000)
+        .ease(easeLinear)
+        .attr("fill", topValue === data2[index] ? "blue" : "red")
+        .attr("height", data2[index])
+        .attr("y", 300 - data2[index] + 100);
+    });
+  }, []);
   return (
     <div className={styles.container}>
       <Head>
@@ -33,27 +41,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <>
-          <svg ref={svgRef}>
-            {data.map((el, i) => (
-              <circle r={el} key={i}>
-                {el}
-              </circle>
-            ))}
-          </svg>
-          <button
-            onClick={() => {
-              setData(data.map((el) => el + 5));
-            }}
-          >
-            increase + 5
-          </button>
-          <button
-            onClick={() => {
-              setData(data.filter((el) => el > 35));
-            }}
-          >
-            filter circle r should gt 35
-          </button>
+          <svg ref={svgRef} style={{ width: "500px", height: "500px" }}></svg>
         </>
       </main>
 
