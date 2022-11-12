@@ -4,7 +4,14 @@ import React from "react";
 const Gnb = () => {
   return (
     <div>
-      <nav style={{ position: "fixed", height: "100%", width: "200px" }}>
+      <nav
+        style={{
+          position: "fixed",
+          height: "100%",
+          width: "200px",
+          zIndex: 400,
+        }}
+      >
         <ul>
           <li>
             <Link href="/">home</Link>
