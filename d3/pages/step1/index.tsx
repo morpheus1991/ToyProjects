@@ -10,11 +10,11 @@ import { useEffect, useRef } from "react";
 
 const getData = () => {
   const result = [];
-  for (let i = 0; i < 900; i++) {
+  for (let i = 0; i < 1500; i++) {
     result.push({
       cx: Math.random() * 1500,
       cy: Math.random() * 1500,
-      r: Math.random() * 20,
+      r: Math.random() * 10,
       color: `hsl${Math.random() * 360},100%,50%`,
     });
   }
